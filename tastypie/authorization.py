@@ -90,6 +90,15 @@ class Authorization(object):
         """
         return True
 
+    def exclude_field(self, field_name, bundle):
+        """
+        Returns either ``True`` if the user is not allowed to access the field in
+        question.
+
+        Returns ``False`` by default.
+        """
+        return False
+
 
 class ReadOnlyAuthorization(Authorization):
     """
