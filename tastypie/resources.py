@@ -890,8 +890,6 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
 
         # Dehydrate each field.
         for field_name, field_object in self.fields.items():
-            if self._meta.authorization.exclude_field(field_name, bundle):
-                continue
             # If it's not for use in this mode, skip
             field_use_in = field_object.use_in
             if callable(field_use_in):
@@ -900,6 +898,9 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
             else:
                 if field_use_in not in ['all', 'list' if for_list else 'detail']:
                     continue
+
+            if self._meta.authorization.exclude_field(field_name, bundle):
+                continue
 
             # A touch leaky but it makes URI resolution work.
             if field_object.dehydrated_type == 'related':
