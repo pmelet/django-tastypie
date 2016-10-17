@@ -99,6 +99,14 @@ class Authorization(object):
         """
         return False
 
+    def allow_set(self, field_name, bundle, value):
+        """
+        Returns either ``True`` if the user is allowed to write the value in the field in
+        question.
+
+        Returns ``True`` by default.
+        """
+        return True
 
 class ReadOnlyAuthorization(Authorization):
     """

@@ -899,7 +899,7 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
                 if field_use_in not in ['all', 'list' if for_list else 'detail']:
                     continue
 
-            if self._meta.authorization.exclude_field(field_name, bundle):
+            if self._meta.authorization.exclude_field(field_object.attribute, bundle):
                 continue
 
             # A touch leaky but it makes URI resolution work.
@@ -952,6 +952,9 @@ class Resource(six.with_metaclass(DeclarativeMetaclass)):
 
             if field_object.attribute:
                 value = field_object.hydrate(bundle)
+
+                if not self._meta.authorization.allow_set(field_object.attribute, bundle, value):
+                    continue
 
                 # NOTE: We only get back a bundle when it is related field.
                 if isinstance(value, Bundle) and value.errors.get(field_name):

@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-import time
+import time,sys
 import warnings
 
 from django.conf import settings
@@ -24,6 +24,16 @@ class TestApiClient(object):
         if not self.serializer:
             self.serializer = Serializer()
 
+    def set_request_session(self, session_values):
+        """
+        Set a given key/value pair in the session for this client
+        """
+        if type(session_values) == dict:
+            session = self.client.session
+            for key,value in session_values.items():
+                session[key] = value
+            session.save()
+
     def get_content_type(self, short_format):
         """
         Given a short name (such as ``json`` or ``xml``), returns the full
@@ -32,7 +42,7 @@ class TestApiClient(object):
         """
         return self.serializer.content_types.get(short_format, 'json')
 
-    def get(self, uri, format='json', data=None, authentication=None,
+    def get(self, uri, format='json', data=None, authentication=None, session=None,
             **kwargs):
         """
         Performs a simulated ``GET`` request to the provided URI.
@@ -62,6 +72,8 @@ https://docs.djangoproject.com/en/dev/topics/testing/#module-django.test.client
         content_type = self.get_content_type(format)
         kwargs['HTTP_ACCEPT'] = content_type
 
+        self.set_request_session(session)
+
         # GET & DELETE are the only times we don't serialize the data.
         if data is not None:
             kwargs['data'] = data
@@ -71,7 +83,7 @@ https://docs.djangoproject.com/en/dev/topics/testing/#module-django.test.client
 
         return self.client.get(uri, **kwargs)
 
-    def post(self, uri, format='json', data=None, authentication=None,
+    def post(self, uri, format='json', data=None, authentication=None, session=None,
             **kwargs):
         """
         Performs a simulated ``POST`` request to the provided URI.
@@ -102,6 +114,8 @@ https://docs.djangoproject.com/en/dev/topics/testing/#module-django.test.client
         content_type = self.get_content_type(format)
         kwargs['content_type'] = content_type
 
+        self.set_request_session(session)
+
         if data is not None:
             kwargs['data'] = self.serializer.serialize(
                 data, format=content_type)
@@ -111,7 +125,7 @@ https://docs.djangoproject.com/en/dev/topics/testing/#module-django.test.client
 
         return self.client.post(uri, **kwargs)
 
-    def put(self, uri, format='json', data=None, authentication=None,
+    def put(self, uri, format='json', data=None, authentication=None, session=None,
             **kwargs):
         """
         Performs a simulated ``PUT`` request to the provided URI.
@@ -142,6 +156,8 @@ https://docs.djangoproject.com/en/dev/topics/testing/#module-django.test.client
         content_type = self.get_content_type(format)
         kwargs['content_type'] = content_type
 
+        self.set_request_session(session)
+
         if data is not None:
             kwargs['data'] = self.serializer.serialize(
                 data, format=content_type)
@@ -151,7 +167,7 @@ https://docs.djangoproject.com/en/dev/topics/testing/#module-django.test.client
 
         return self.client.put(uri, **kwargs)
 
-    def patch(self, uri, format='json', data=None, authentication=None,
+    def patch(self, uri, format='json', data=None, authentication=None, session=None,
             **kwargs):
         """
         Performs a simulated ``PATCH`` request to the provided URI.
@@ -182,6 +198,8 @@ https://docs.djangoproject.com/en/dev/topics/testing/#module-django.test.client
         content_type = self.get_content_type(format)
         kwargs['content_type'] = content_type
 
+        self.set_request_session(session)
+
         if data is not None:
             kwargs['data'] = self.serializer.serialize(
                 data, format=content_type)
@@ -191,7 +209,7 @@ https://docs.djangoproject.com/en/dev/topics/testing/#module-django.test.client
 
         return self.client.patch(uri, **kwargs)
 
-    def delete(self, uri, format='json', data=None, authentication=None,
+    def delete(self, uri, format='json', data=None, authentication=None, session=None,
             **kwargs):
         """
         Performs a simulated ``DELETE`` request to the provided URI.
@@ -217,6 +235,8 @@ https://docs.djangoproject.com/en/dev/topics/testing/#module-django.test.client
         """
         content_type = self.get_content_type(format)
         kwargs['content_type'] = content_type
+
+        self.set_request_session(session)
 
         # GET & DELETE are the only times we don't serialize the data.
         if data is not None:
